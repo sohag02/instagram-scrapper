@@ -203,6 +203,20 @@ class Database:
                    WHERE id = ?''',
                 (status, result_to_store, error_message, completed_at, task_id)
             )
+
+    def update_task_data(self, task_id, result):
+        if isinstance(result, (dict, list)):
+            result_to_store = json.dumps(result, default=str)
+        else:
+            result_to_store = result
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                '''UPDATE scraped_data 
+                   SET data = ?
+                   WHERE task_id = ?''',
+                (result_to_store, task_id)
+            )
     
     def get_tasks(self, status=None, limit=50):
         with self.get_connection() as conn:

@@ -16,11 +16,11 @@ class SessionInvalid(Exception):
         super().__init__(f"Invalid session: {session_id}")
 
 class Scraper:
-    def __init__(self, session_file: str, proxy: str = None) -> None:
-        logger.info(f'Logging in with {session_file}...')
-        self.session_file = session_file
+    def __init__(self, session_name: str, proxy: str = None) -> None:
+        logger.info(f'Logging in with {session_name}...')
+        self.session_name = session_name
         self.cl = Client()
-        self.cl.load_settings(f'sessions/{session_file}.json')
+        self.cl.load_settings(f'sessions/{session_name}.json')
         self.cl.delay_range = [1, 3]
 
         if proxy:
@@ -31,7 +31,7 @@ class Scraper:
             logger.info("Session is valid")
         else:
             logger.error("Session is invalid")
-            raise SessionInvalid(session_file)
+            raise SessionInvalid(session_name)
 
     def verify_session(self):
         try:
@@ -143,3 +143,14 @@ class Scraper:
 
         return followers
 
+
+if __name__ == '__main__':
+    # s = Scraper('itss.s.j')
+    s = Scraper('gecko.11529752')
+    p = s.get_profile('maisamayhoon')
+    print(p)
+    # c = s.get_comments('https://www.instagram.com/p/C1eZj3ryw-b/', amount=0)
+    # print(c)
+    # print('=================================')
+    # print(s.get_likes('https://www.instagram.com/p/DRZprFbks8J/', 10))
+    # print(s.get_followers('iqcpl_4.0', 20))

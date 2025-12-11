@@ -193,12 +193,13 @@ def manage_tasks():
         task_type = data.get('task_type')
         target = data.get('target')
         max_items = data.get('max_items', 10000)
+        task_data_id = data.get('task_data_id', None)
         
         if not task_type or not target:
             return jsonify({'error': 'Task type and target required'}), 400
         
         # Updated valid task types - includes comments and likes
-        valid_types = ['profile', 'posts', 'hashtag', 'followers', 'following', 'comments', 'likes']
+        valid_types = ['profile', 'posts', 'hashtag', 'followers', 'following', 'comments', 'likes', 'fbid']
         
         if task_type not in valid_types:
             return jsonify({
@@ -210,7 +211,7 @@ def manage_tasks():
             task_id = db.create_task(task_type, target)
             
             # Start task in background
-            thread = threading.Thread(target=handle_task, args=(db, task_id, task_type, target, max_items))
+            thread = threading.Thread(target=handle_task, args=(db, task_id, task_type, target, task_data_id, max_items))
             thread.daemon = True
             thread.start()
             print(f'Task #{task_id} started. Type : {task_type}')

@@ -1363,7 +1363,8 @@
       store.currentTaskId = taskId;
 
       try {
-        const taskData = await apiCall(`/api/tasks/${taskId}/data`);
+        const taskresponse = await apiCall(`/api/tasks/${taskId}/data`);
+        const taskData = taskresponse[0].data;
         const task = store.tasks.find(t => t.id === taskId);
 
         if(!task){
@@ -1381,11 +1382,78 @@
         detailType.textContent = task.task_type;
 
         const preview = dataPreview;
-        if(taskData && (Array.isArray(taskData) ? taskData.length > 0 : true)){
-          const previewData = Array.isArray(taskData) ? taskData.slice(0, 5) : taskData;
-          preview.textContent = JSON.stringify(previewData, null, 2);
+
+        if (task.task_type === 'profile' && taskData) {
+            const p = Array.isArray(taskData) ? taskData[0] : taskData;
+            
+            if (p) {
+               const verifiedBadge = p.is_verified ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#3897f0" style="margin-left:4px;vertical-align:text-bottom"><path d="M12.001 2C6.478 2 2.001 6.478 2.001 12C2.001 17.522 6.478 22 12.001 22C17.522 22 22.001 17.522 22.001 12C22.001 6.478 17.522 2 12.001 2ZM10.001 17.293L6.708 14.001L8.122 12.586L10.001 14.465L15.88 8.586L17.294 10.001L10.001 17.293Z" fill="white"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M12.001 0C5.373 0 0.001 5.373 0.001 12C0.001 18.627 5.373 24 12.001 24C18.627 24 24.001 18.627 24.001 12C24.001 5.373 18.627 0 12.001 0ZM12.001 22C6.478 22 2.001 17.522 2.001 12C2.001 6.478 6.478 2 12.001 2C17.522 2 22.001 6.478 22.001 12C22.001 17.522 17.522 22 12.001 22ZM10.001 17.293L6.708 14.001L8.122 12.586L10.001 14.465L15.88 8.586L17.294 10.001L10.001 17.293Z" fill="#3897f0"></path></svg>' : '';
+               const privateBadge = p.is_private ? '<span style="font-size:11px;padding:2px 8px;border-radius:999px;background:#fff7e6;color:#b45309;font-weight:600;border:1px solid #fcd34d;margin-left:8px">Private</span>' : '';
+
+               preview.innerHTML = `
+                <div style="background:#fff;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden">
+                    <div style="padding:24px;display:flex;gap:20px;align-items:flex-start">
+                        <img src="//wsrv.nl/?url=${encodeURIComponent(p.profile_pic_url || '')}&w=150&h=150&fit=cover" alt="${p.username}" 
+                             style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 0 0 1px #e2e8f0;flex-shrink:0"/>
+                        <div style="flex:1;min-width:0">
+                            <div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+                                <h2 style="margin:0;font-size:20px;font-weight:800;color:#0f172a">${p.full_name || p.username}</h2>
+                                ${p.is_verified ? verifiedBadge : ''}
+                                ${p.is_private ? privateBadge : ''}
+                            </div>
+                            <div style="color:#64748b;font-weight:500;margin-bottom:12px">@${p.username}</div>
+                            <p style="margin:0;font-size:14px;line-height:1.5;color:#334155;white-space:pre-wrap">${p.biography || ''}</p>
+                            ${p.fbid ? `<div style="margin-top:8px;font-size:11px;color:#94a3b8;font-family:monospace">FB ID: ${p.fbid}</div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #e2e8f0;background:#f8fafc">
+                        <div style="padding:16px;text-align:center;border-right:1px solid #e2e8f0">
+                            <div style="font-size:20px;font-weight:800;color:#0f172a">${(p.media_count || 0).toLocaleString()}</div>
+                            <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Posts</div>
+                        </div>
+                        <div style="padding:16px;text-align:center;border-right:1px solid #e2e8f0">
+                            <div style="font-size:20px;font-weight:800;color:#0f172a">${(p.follower_count || 0).toLocaleString()}</div>
+                            <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Followers</div>
+                        </div>
+                        <div style="padding:16px;text-align:center">
+                            <div style="font-size:20px;font-weight:800;color:#0f172a">${(p.following_count || 0).toLocaleString()}</div>
+                            <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Following</div>
+                        </div>
+                    </div>
+
+                     <div style="padding:12px;background:#f1f5f9;display:flex;justify-content:center;border-top:1px solid #e2e8f0">
+                         <a href="https://instagram.com/${p.username}" target="_blank" style="text-decoration:none;color:#3b82f6;font-weight:600;font-size:14px;display:flex;align-items:center;gap:4px">
+                             View Profile on Instagram ↗
+                         </a>
+                     </div>
+                </div>
+               `;
+            } else {
+                preview.innerHTML = '<div class="empty">No profile data available</div>';
+            }
+
+        } else if(taskData && (Array.isArray(taskData) ? taskData.length > 0 : true)){
+          // const previewData = Array.isArray(taskData) ? taskData.slice(0, 5) : taskData;
+          const items = Array.isArray(taskData) ? taskData : [taskData];
+          const html = items.map(u => `
+            <div style="display:flex;gap:12px;align-items:center;padding:12px;background:#fff;border:1px solid rgba(16,24,40,0.06);border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.04);margin-bottom:10px">
+              <img src="//wsrv.nl/?url=${encodeURIComponent(u.profile_pic_url || '')}" alt="${u.username || ''}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:1px solid #eee"/>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <div style="font-weight:800">${u.full_name || u.username || 'Unknown'}</div>
+                  ${typeof u.is_private !== 'undefined' ? `<span style="font-size:12px;padding:4px 8px;border-radius:999px;background:${u.is_private ? '#fff7e6' : '#e6f7ee'};color:${u.is_private ? '#7a5200' : '#0f6b2e'};font-weight:700">${u.is_private ? 'Private' : 'Public'}</span>` : ''}
+                </div>
+                <div class="small-muted" style="margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@${u.username || ''}</div>
+              </div>
+              <a href="https://instagram.com/${u.username || ''}" target="_blank" style="text-decoration:none">
+                <button class="btn btn-ghost">🔗 Open</button>
+              </a>
+            </div>
+          `).join('');
+          preview.innerHTML = html || '<div class="empty">No data available</div>';
         } else {
-          preview.textContent = 'No data available';
+          preview.innerHTML = '<div class="empty">No data available</div>';
         }
 
         openModal('modalTaskDetail');

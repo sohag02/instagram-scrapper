@@ -36,6 +36,7 @@ class Database:
                     last_used TIMESTAMP,
                     cooldown_until TIMESTAMP,
                     status TEXT DEFAULT 'available',
+                    ip TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
@@ -192,11 +193,15 @@ class Database:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             completed_at = datetime.now() if status == 'completed' else None
+            if isinstance(result, (dict, list)):
+                result_to_store = json.dumps(result, default=str)
+            else:
+                result_to_store = result
             cursor.execute(
                 '''UPDATE tasks 
                    SET status = ?, result = ?, error_message = ?, completed_at = ?
                    WHERE id = ?''',
-                (status, result, error_message, completed_at, task_id)
+                (status, result_to_store, error_message, completed_at, task_id)
             )
     
     def get_tasks(self, status=None, limit=50):
@@ -217,7 +222,7 @@ class Database:
             cursor = conn.cursor()
             cursor.execute(
                 'INSERT INTO scraped_data (task_id, data_type, data) VALUES (?, ?, ?)',
-                (task_id, data_type, json.dumps(data))
+                (task_id, data_type, json.dumps(data, default=str))
             )
             return cursor.lastrowid
     
@@ -264,4 +269,8 @@ class Database:
                 'UPDATE accounts SET is_active = 1, status = ?, last_used = ? WHERE id = ?',
                 ('available', datetime.now(), account_id)
             )
+
+if __name__ == '__main__':
+    db = Database()
+    db.init_db()
         

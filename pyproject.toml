@@ -1,0 +1,16 @@
+[project]
+name = "instagram-scrapper"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "cryptography==41.0.7",
+    "flask==3.0.0",
+    "flask-cors==4.0.0",
+    "instagrapi>=2.2.1",
+    "instaloader>=4.15",
+    "python-dotenv>=1.2.1",
+    "selenium==4.15.0",
+    "setuptools>=80.9.0",
+    "undetected-chromedriver==3.5.4",
+    "webdriver-manager==4.0.1",
+]

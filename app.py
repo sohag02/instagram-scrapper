@@ -10,10 +10,9 @@ from data_formatter import DataFormatter
 import threading
 import os
 import json
-import csv
 from functools import wraps
-from io import StringIO
 from datetime import datetime
+from task_handler import handle_task
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -92,9 +91,11 @@ def process_task(task_id):
         
         # Initialize scraper
         scraper = InstagramScraper()
+        print('inti')
         scraper.init_driver()
         
         # Login
+        print('logging in')
         if not scraper.login(account['username'], account['password']):
             raise Exception("Login failed")
         
@@ -209,9 +210,10 @@ def manage_tasks():
             task_id = db.create_task(task_type, target)
             
             # Start task in background
-            thread = threading.Thread(target=process_task, args=(task_id,))
+            thread = threading.Thread(target=handle_task, args=(db, task_id, task_type, target, max_items))
             thread.daemon = True
             thread.start()
+            print(f'Task #{task_id} started. Type : {task_type}')
             
             active_scrapers[task_id] = thread
             

@@ -17,7 +17,7 @@ def handle_task(
         if not account:
             raise ValueError("No available accounts")
 
-        scraper = Scraper(f"{account['username']}")
+        scraper = Scraper(f"{account['username']}", proxy=account.get("ip"))
 
         if task_type == "comments":
             result = scraper.get_comments(target, max_items)

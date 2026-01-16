@@ -1640,6 +1640,7 @@
             <div>
               <h3 style="margin:0">@${acc.username}</h3>
               <p class="small-muted" style="margin:4px 0 0 0">ID: ${acc.id}</p>
+              ${acc.ip ? `<p class="small-muted" style="margin:4px 0 0 0">Proxy: ${acc.ip}</p>` : ''}
             </div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
               <span style="color:${statusColor};font-weight:700">${statusText}</span>

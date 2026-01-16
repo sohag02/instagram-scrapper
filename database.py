@@ -70,12 +70,12 @@ class Database:
             ''')
     
     # Account Management
-    def add_account(self, username, password):
+    def add_account(self, username, password, proxy=None):
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                'INSERT INTO accounts (username, password) VALUES (?, ?)',
-                (username, password)
+                'INSERT INTO accounts (username, password, ip) VALUES (?, ?, ?)',
+                (username, password, proxy)
             )
             return cursor.lastrowid
     

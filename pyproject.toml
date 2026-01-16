@@ -9,6 +9,7 @@ dependencies = [
     "instagrapi>=2.2.1",
     "instaloader>=4.15",
     "python-dotenv>=1.2.1",
+    "requests>=2.32.4",
     "selenium==4.15.0",
     "setuptools>=80.9.0",
     "undetected-chromedriver==3.5.4",
